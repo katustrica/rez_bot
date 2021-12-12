@@ -10,6 +10,8 @@ from telegram.ext import (
     ConversationHandler,
     CallbackContext,
 )
+import os
+PORT = int(os.environ.get('PORT', 5000))
 
 from core import Rezeda
 
@@ -99,7 +101,8 @@ def main() -> None:
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     with open('private.key', 'r') as private_key:
-        updater = Updater(token=private_key.read())
+        token = private_key.read()
+        updater = Updater(token=token)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
@@ -135,7 +138,9 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, unknow))
 
     # Start the Bot
-    updater.start_polling()
+    # updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0", port=int(PORT), url_path=token)
+    updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + token)
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
