@@ -11,7 +11,7 @@ from telegram.ext import (
     CallbackContext,
 )
 import os
-PORT = int(os.environ.get('PORT', 5000))
+PORT = int(os.environ.get('PORT', 8443))
 
 from core import Rezeda
 
