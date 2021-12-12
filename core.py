@@ -6,6 +6,7 @@ class HourType(IntEnum):
     BUSY = 1
     RELAX = 2
 
+
 week_info = dict[str, dict[str, int]]
 
 
@@ -31,7 +32,6 @@ class Rezeda():
             self._hours = tuple(tuple(week.values())[0].keys())
         return self._hours
 
-
     def get_info(self) -> str:
         week = self.get_week_info()
         free_time = self.get_time(HourType.FREE, week)
@@ -50,7 +50,7 @@ class Rezeda():
         Вернуть календарь с часами по дням. 1 - занято, 2 - отдых, 0 - свободно.
         """
         week = self.get_week_info()
-        week[day][hour] = type
+        week[day][hour] = int(type)
         with open(self.__file_name, 'w') as week_json:
             return json.dump(week, week_json, ensure_ascii=False, indent=4)
 

@@ -50,7 +50,7 @@ def select_day(update: Update, context: CallbackContext) -> int:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Send message with text and appended InlineKeyboard
-    update.message.reply_text(f"Choose day", reply_markup=reply_markup)
+    update.message.reply_text(f"Выбери день", reply_markup=reply_markup)
     return TIME
 
 
@@ -64,22 +64,22 @@ def select_hour(update: Update, context: CallbackContext) -> int:
     reply_markup = InlineKeyboardMarkup(keyboard)
     Rezeda.selected_day = update.callback_query.data
     query.edit_message_text(
-        text=f"{Rezeda.selected_day}. Choose time", reply_markup=reply_markup
+        text=f"Выбери время.\n{Rezeda.selected_day}.", reply_markup=reply_markup
     )
-    # Transfer to conversation state `SECOND`
     return TIME
+
 
 def select_type(update: Update, context: CallbackContext) -> int:
     """Show new choice of buttons"""
     query = update.callback_query
     query.answer()
     keyboard = [
-        [InlineKeyboardButton(type, callback_data=type)] for type in [1,2,3]
+        [InlineKeyboardButton(type, callback_data=type)] for type in ['Занято', 'Отдых', 'Свободно']
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     Rezeda.selected_hour = update.callback_query.data
     query.edit_message_text(
-        text=f"{Rezeda.selected_hour}", reply_markup=reply_markup
+        text=f"Выбери тип.\n{Rezeda.selected_day} - {Rezeda.selected_hour}.", reply_markup=reply_markup
     )
     # Transfer to conversation state `SECOND`
     return TYPE
@@ -91,8 +91,10 @@ def end(update: Update, context: CallbackContext) -> int:
     """
     query = update.callback_query
     query.answer()
-    Rezeda.selected_type = update.callback_query.data
-    query.edit_message_text(text=f"{Rezeda.selected_day} {Rezeda.selected_hour} {Rezeda.selected_type}")
+    Rezeda.selected_type = {'Занято': 1, 'Отдых': 2, 'Свободно': 0}.get(update.callback_query.data)
+    query.edit_message_text(
+        text=f"День:{Rezeda.selected_day}\nЧас:{Rezeda.selected_hour}\nТип:{update.callback_query.data}"
+    )
     Rezeda().update_week_info(Rezeda.selected_day, Rezeda.selected_hour, Rezeda.selected_type)
     return ConversationHandler.END
 
@@ -121,7 +123,7 @@ def main() -> None:
                 CallbackQueryHandler(select_type, pattern=lambda x: x in Rezeda().hours),
             ],
             TYPE: [
-                CallbackQueryHandler(end, pattern=lambda x: x in ['1','2','3']),
+                CallbackQueryHandler(end, pattern=lambda x: x in ['Занято', 'Отдых', 'Свободно']),
             ]
         },
         fallbacks=[CommandHandler('day', select_day)],
